@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './form.css';
 
 
 const Form =()=> {
@@ -8,7 +9,7 @@ const [formData, setFormData] = useState({
     descriptionInput:""
 })
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
         setFormData(prev=>({
             ...prev,
@@ -17,37 +18,40 @@ const [formData, setFormData] = useState({
     }
 
     return(
-        <>
         
+        <div className = "form-container">
+        <div className = "form-field">
         <label htmlFor="identityInput">Who are you: </label>
         <input id = "identityInput" 
         name = "identityInput" 
         type = "text"
         value = {formData.identityInput}
-        onChange= {handleChange}/>
+        onChange= {handleChange}
+        placeholder = "eg. Employee"/>
+        </div>
 
 
-
-          <label htmlFor="otherPartyInput">Who are you speaking to: </label>
+         <div className = "form-field">
+        <label htmlFor="otherPartyInput">Who are you speaking to: </label>
         <input id = "otherPartyInput" 
         name = "otherPartyInput" 
         type = "text"
         value = {formData.otherPartyInput}
-        onChange= {handleChange}/>
+        onChange= {handleChange}
+        placeholder = "eg. Manager"/>
+        </div>
 
-
+          <div className = "form-field">
         <label htmlFor="descriptionInput">Describe the situation at hand:  </label>
-        <input id = "descriptionInput" 
+        <textarea
+         id = "descriptionInput" 
         name = "descriptionInput" 
-        type = "text"
         value = {formData.descriptionInput}
-        onChange= {handleChange}/>
-
-
-
-        </>
-
-
+        onChange= {handleChange}
+        placeholder = "eg. Asking for an extension for a deadline"/>
+        
+        </div>
+        </div>
     );
 };
 

@@ -1,0 +1,29 @@
+.form-container {
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+
+.form-field {
+
+    display: flex;
+    flex-direction: column;
+}
+
+.form-field input, 
+.form-field textarea {
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box
+
+}
+
+.form-field textarea{
+    height:200px;
+    resize: vertical;
+
+}
