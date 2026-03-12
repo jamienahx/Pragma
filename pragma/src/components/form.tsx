@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import './form.css';
-
+import languages from '../data/languages.json';
 
 const Form =()=> {
 const [formData, setFormData] = useState({
     identityInput:"",
     otherPartyInput:"",
-    descriptionInput:""
+    descriptionInput:"",
+    language: ""
 })
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = event.target;
         setFormData(prev=>({
             ...prev,
@@ -20,6 +21,28 @@ const [formData, setFormData] = useState({
     return(
         
         <div className = "form-container">
+
+        <div className="form-field">
+         <label htmlFor="language">Language:</label>
+         <select
+         id="language"
+         name="language"
+         value={formData.language}
+         onChange={handleChange}
+         >
+            <option value = "">Select a Language</option>
+       
+        {languages.map((lang)=> (
+            <option key ={lang.code} value ={lang.code}>
+                {lang.name}
+            </option>
+        ))}
+        </select>
+        </div>
+
+
+
+
         <div className = "form-field">
         <label htmlFor="identityInput">Who are you: </label>
         <input id = "identityInput" 
