@@ -18,9 +18,22 @@ const [formData, setFormData] = useState({
         }))
     }
 
+    const handleSubmit = async(event:React.FormEvent) => {
+        event.preventDefault();
+        console.log(formData);
+
+        const response = await fetch("/api/generate", {
+            method:"POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+    }
+
     return(
         
-        <div className = "form-container">
+        <form className = "form-container" onSubmit={handleSubmit}>
 
         <div className="form-field">
          <label htmlFor="language">Language:</label>
@@ -74,8 +87,12 @@ const [formData, setFormData] = useState({
         placeholder = "eg. Asking for an extension for a deadline"/>
         
         </div>
-        </div>
+         <button type="submit">Generate Response</button>
+        </form>
+
+       
     );
+    
 };
 
 export default Form;
