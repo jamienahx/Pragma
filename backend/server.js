@@ -4,10 +4,15 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
+var cors = require('cors');
 var app = express();
+
+const OpenAI = require("openai");
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY})
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +24,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use(cors());
+
+//the request
+app.post("/api/generate", async (req, res)=>{
+  const {identityInput, otherPartyInput, descriptionInput,language}= req.body;
+  console.log(req.body);
+
+  res.json({
+    message: "Backend received the data",
+    data: req.body
+  })
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

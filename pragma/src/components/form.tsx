@@ -22,7 +22,7 @@ const [formData, setFormData] = useState({
         event.preventDefault();
         console.log(formData);
 
-        const response = await fetch("/api/generate", {
+        const response = await fetch("http://localhost:3000/api/generate", {
             method:"POST",
             headers: {
                 "Content-Type": "application/json"
