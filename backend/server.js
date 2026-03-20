@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -29,13 +30,46 @@ app.use(cors());
 //the request
 app.post("/api/generate", async (req, res)=>{
   const {identityInput, otherPartyInput, descriptionInput,language}= req.body;
-  console.log(req.body);
+  const prompt = 
+  `The user is a ${identityInput}.
+They are speaking to a ${otherPartyInput}.
 
-  res.json({
-    message: "Backend received the data",
-    data: req.body
+Situation:
+${descriptionInput}
+
+Generate 5–8 realistic phrases that would be used in this situation in ${language}.
+
+For each phrase, provide:
+1. The phrase in ${language}
+2. The English translation
+3. The romanized pronunciation (if applicable)
+
+Format the output as a numbered list.
+Keep the tone appropriate for the situation.`;
+
+
+  try {
+
+    const completion = await openai.chat.completions.create({
+      model:"gpt-4.1-mini",
+      messages:[
+        {role: "system", content:"You help users generate likely phrases used in provided scenarios"},
+        {role: "user", content:prompt}
+      ]
+    })
+
+    const result = completion.choices[0].message.content;
+    res.json({result});
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({error:"Something went wrong!"})
+
+  }
+
   })
-})
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
