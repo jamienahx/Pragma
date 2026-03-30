@@ -29,7 +29,10 @@ const [formData, setFormData] = useState({
             },
             body: JSON.stringify(formData)
         })
-    }
+
+        const data = await response.json();
+        console.log(data);
+    };
 
     return(
         
@@ -46,7 +49,7 @@ const [formData, setFormData] = useState({
             <option value = "">Select a Language</option>
        
         {languages.map((lang)=> (
-            <option key ={lang.code} value ={lang.code}>
+            <option key ={lang.code} value ={lang.name}>
                 {lang.name}
             </option>
         ))}
