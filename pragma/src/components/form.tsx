@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import './form.css';
 import languages from '../data/languages.json';
 
+const navigate = useNavigate();
 const Form =()=> {
 const [formData, setFormData] = useState({
     identityInput:"",
@@ -20,7 +22,7 @@ const [formData, setFormData] = useState({
 
     const handleSubmit = async(event:React.FormEvent) => {
         event.preventDefault();
-        console.log(formData);
+        //console.log(formData);
 
         const response = await fetch("http://localhost:3000/api/generate", {
             method:"POST",
@@ -32,6 +34,7 @@ const [formData, setFormData] = useState({
 
         const data = await response.json();
         console.log(data);
+        navigate("/results,", { state: {result: data.result} });
     };
 
     return(
