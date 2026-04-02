@@ -3,8 +3,9 @@ import {useNavigate} from 'react-router-dom';
 import './form.css';
 import languages from '../data/languages.json';
 
-const navigate = useNavigate();
+
 const Form =()=> {
+    const navigate = useNavigate();
 const [formData, setFormData] = useState({
     identityInput:"",
     otherPartyInput:"",
@@ -34,7 +35,7 @@ const [formData, setFormData] = useState({
 
         const data = await response.json();
         console.log(data);
-        navigate("/results,", { state: {result: data.result} });
+        navigate("/results", { state: {result: data.result} });
     };
 
     return(

@@ -41,8 +41,8 @@ Generate 5–8 realistic phrases that would be used in this situation in ${langu
 
 For each phrase, provide:
 1. The phrase in ${language}
-2. The English translation
-3. The romanized pronunciation (if applicable)
+2. The romanized pronunciation (if applicable)
+3. The English translation
 
 Format the output as a numbered list.
 Keep the tone appropriate for the situation.`;
