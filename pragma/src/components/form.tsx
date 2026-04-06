@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import './form.css';
 import languages from '../data/languages.json';
 
+const [loading, setLoading] = useState(false);
 
 const Form =()=> {
     const navigate = useNavigate();
@@ -24,8 +25,9 @@ const [formData, setFormData] = useState({
     const handleSubmit = async(event:React.FormEvent) => {
         event.preventDefault();
         //console.log(formData);
+        setLoading(true);
 
-        const response = await fetch("http://localhost:3000/api/generate", {
+        try {const response = await fetch("http://localhost:3000/api/generate", {
             method:"POST",
             headers: {
                 "Content-Type": "application/json"
@@ -36,7 +38,13 @@ const [formData, setFormData] = useState({
         const data = await response.json();
         console.log(data);
         navigate("/results", { state: {result: data.result} });
-    };
+    } catch (error) {
+        console.log(error);
+    } finally {
+        setLoading(false);
+    }
+}
+
 
     return(
         
@@ -94,7 +102,9 @@ const [formData, setFormData] = useState({
         placeholder = "eg. Asking for an extension for a deadline"/>
         
         </div>
-         <button type="submit">Generate Response</button>
+         <button type="submit" disabled ={loading}>
+            {loading ? "Fetching Response...": "Generate Response"}
+            </button>
         </form>
 
        
