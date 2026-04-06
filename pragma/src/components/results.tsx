@@ -1,15 +1,17 @@
 import { useLocation} from "react-router-dom";
-import { jsPDF } from "jspdf";
+import html2pdf from "html2pdf.js";
 
 const Results = () => {
 const location = useLocation();
 const result = location.state?.result;
 
 const handleDownload = () => {
-    const doc = new jsPDF();
-    const lines = doc.splitTextToSize(result, 180);
-    doc.text(lines, 10,10);
-    doc.save("generated-response.pdf")
+const element = document.getElementById("pdf-content");
+if (!element) return;
+
+html2pdf()
+.from(element)
+.save("generated-responses.pdf");
 };
 
 if (!result) {
@@ -21,9 +23,11 @@ return (
 <div style = {{padding: "20px"}}>
 <h2> Generated phrases </h2>
 
+<div id = "pdf-content">
 <div style = {{whiteSpace: "pre-wrap"}}>
-{result};
+{result}
 
+</div>
 </div>
 
 <button onClick = {handleDownload}>
