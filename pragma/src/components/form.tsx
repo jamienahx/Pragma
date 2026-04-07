@@ -3,10 +3,11 @@ import {useNavigate} from 'react-router-dom';
 import './form.css';
 import languages from '../data/languages.json';
 
-const [loading, setLoading] = useState(false);
+
 
 const Form =()=> {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 const [formData, setFormData] = useState({
     identityInput:"",
     otherPartyInput:"",
