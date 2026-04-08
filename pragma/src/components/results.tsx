@@ -19,15 +19,24 @@ if (!result) {
 
 }
 
+const speakText = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+     utterance.lang = "ja-JP";
+    speechSynthesis.speak(utterance);
+}
+
 return (
 <div style = {{padding: "20px"}}>
 <h2> Generated phrases </h2>
 
 <div id = "pdf-content">
-<div style = {{whiteSpace: "pre-wrap"}}>
-{result}
-
-</div>
+    {result.map ((item: any, index: number)=>(
+        <div key={index} style ={{marginBottom:"15px"}}>
+            <p><strong>{item.native}</strong></p>
+            <p>{item.romanized}</p>
+            <p>{item.english}</p>
+            </div>
+    ))}
 </div>
 
 <button onClick = {handleDownload}>
@@ -35,9 +44,18 @@ return (
 Download as PDF
 </button>
 
+<button 
+onClick={()=> 
+    speakText(result.map((item: any)=> item.native).join("."))
+}
+>
+    Play Audio
+</button>
+
 </div>
 
 );
 };
+
 
 export default Results;
