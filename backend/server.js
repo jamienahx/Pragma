@@ -39,27 +39,39 @@ ${descriptionInput}
 
 Generate 5–8 realistic phrases that would be used in this situation in ${language}.
 
-For each phrase, provide:
-1. The phrase in ${language}
-2. The romanized pronunciation (if applicable)
-3. The English translation
-
-Format the output as a numbered list.
-Keep the tone appropriate for the situation.`;
+Return ONLY a JSON array in this exact format:
+[
+  {
+    "native": "phrase in ${language}",
+    "romanized": "romanized pronunciation",
+    "english": "english translation"
+  }
+]
+Keep the tone appropriate for the situation.
+Do not include any extra text, explanation, or formatting.`;
 
 
   try {
 
     const completion = await openai.chat.completions.create({
-      model:"gpt-4.1-mini",
+      model:"gpt-5-mini",
       messages:[
         {role: "system", content:"You help users generate likely phrases used in provided scenarios"},
         {role: "user", content:prompt}
       ]
     })
 
-    const result = completion.choices[0].message.content;
-    res.json({result});
+    const raw = completion.choices[0].message.content;
+
+    let parsed;
+    try {
+      const cleaned = raw.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch (err) {
+      console.error("JSON parse failed:", raw);
+      return res.status(500).json({error:"Invalid response format"})
+    }
+    res.json({result: parsed});
 
   } catch (error) {
 
