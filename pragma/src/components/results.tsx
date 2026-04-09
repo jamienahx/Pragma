@@ -26,6 +26,7 @@ if (!result) {
 }
 
 const speakText = (text: string) => {
+    speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
      utterance.lang = speechCode;
     speechSynthesis.speak(utterance);
@@ -41,6 +42,12 @@ return (
             <p><strong>{item.native}</strong></p>
             <p>{item.romanized}</p>
             <p>{item.english}</p>
+            <button 
+onClick={()=> 
+    speakText(item.native)}>
+
+    Play Audio
+</button>
             </div>
     ))}
 </div>
@@ -50,13 +57,7 @@ return (
 Download as PDF
 </button>
 
-<button 
-onClick={()=> 
-    speakText(result.map((item: any)=> item.native).join(". "))
-}
->
-    Play Audio
-</button>
+
 
 </div>
 

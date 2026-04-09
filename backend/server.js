@@ -58,7 +58,7 @@ Do not include any extra text, explanation, or formatting.`;
   try {
 
     const completion = await openai.chat.completions.create({
-      model:"gpt-5-mini",
+      model:"gpt-4.1-mini",
       messages:[
         {role: "system", content:"You help users generate likely phrases used in provided scenarios"},
         {role: "user", content:prompt}
