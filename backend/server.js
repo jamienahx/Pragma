@@ -13,6 +13,8 @@ const OpenAI = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY})
 
+  const languages = require('./languages.json')
+
 
 
 // view engine setup
@@ -30,6 +32,8 @@ app.use(cors());
 //the request
 app.post("/api/generate", async (req, res)=>{
   const {identityInput, otherPartyInput, descriptionInput,language}= req.body;
+
+  const selectedLanguage = languages.find((lang)=>lang.code ===language)?.name||language; 
   const prompt = 
   `The user is a ${identityInput}.
 They are speaking to a ${otherPartyInput}.
@@ -37,12 +41,12 @@ They are speaking to a ${otherPartyInput}.
 Situation:
 ${descriptionInput}
 
-Generate 5–8 realistic phrases that would be used in this situation in ${language}.
+Generate 5–8 realistic phrases that would be used in this situation in ${selectedLanguage}.
 
 Return ONLY a JSON array in this exact format:
 [
   {
-    "native": "phrase in ${language}",
+    "native": "phrase in ${selectedLanguage}",
     "romanized": "romanized pronunciation",
     "english": "english translation"
   }
@@ -62,6 +66,10 @@ Do not include any extra text, explanation, or formatting.`;
     })
 
     const raw = completion.choices[0].message.content;
+
+    if(!raw) {
+      return res.status(500).json({error:"Server error"})
+    }
 
     let parsed;
     try {

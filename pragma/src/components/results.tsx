@@ -1,9 +1,15 @@
 import { useLocation} from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import languages from '../data/languages.json'
 
 const Results = () => {
 const location = useLocation();
 const result = location.state?.result;
+const language = location.state?.language;
+const selectedLanguage = languages.find(
+    (lang) => lang.code === language);
+const speechCode = selectedLanguage?.speechCode || "en-US";
+
 
 const handleDownload = () => {
 const element = document.getElementById("pdf-content");
@@ -21,7 +27,7 @@ if (!result) {
 
 const speakText = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
-     utterance.lang = "ja-JP";
+     utterance.lang = speechCode;
     speechSynthesis.speak(utterance);
 }
 
@@ -46,7 +52,7 @@ Download as PDF
 
 <button 
 onClick={()=> 
-    speakText(result.map((item: any)=> item.native).join("."))
+    speakText(result.map((item: any)=> item.native).join(". "))
 }
 >
     Play Audio

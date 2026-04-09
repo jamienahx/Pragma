@@ -38,7 +38,7 @@ const [formData, setFormData] = useState({
 
         const data = await response.json();
         console.log(data);
-        navigate("/results", { state: {result: data.result} });
+        navigate("/results", { state: {result: data.result, language:formData.language} });
     } catch (error) {
         console.log(error);
     } finally {
@@ -62,7 +62,7 @@ const [formData, setFormData] = useState({
             <option value = "">Select a Language</option>
        
         {languages.map((lang)=> (
-            <option key ={lang.code} value ={lang.name}>
+            <option key ={lang.code} value ={lang.code}>
                 {lang.name}
             </option>
         ))}
