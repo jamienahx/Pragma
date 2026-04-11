@@ -1,29 +1,65 @@
 .form-container {
-
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0; /* remove this */
+  padding: 30px;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
 }
-
-
-
 .form-field {
-
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
-.form-field input, 
-.form-field textarea {
-    padding: 8px;
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box
-
+label {
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
-.form-field textarea{
-    height:200px;
-    resize: vertical;
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  box-sizing: border-box;
+}
 
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--serenity);
+}
+
+
+.form-container button {
+  padding: 12px;
+  background: var(--serenity);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.form-container button:hover {
+  background: #7f96c5;
+}
+
+.form-container button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+
+#descriptionInput {
+  min-height: 150px;
+  resize: vertical;
 }

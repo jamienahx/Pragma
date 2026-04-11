@@ -1,0 +1,73 @@
+.results-container {
+width:100%;
+  max-width: 700px;
+  margin: 0px auto;
+  padding: 30px;
+}
+
+.results-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--serenity);
+}
+
+.result-card {
+  background: var(--card);
+  border-left: 6px solid var(--rose);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.result-card p {
+  margin: 5px 0;
+}
+
+.native {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.romanized {
+  color: #666;
+}
+
+.english {
+  color: #444;
+}
+
+.audio-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--rose);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.audio-btn:hover {
+  background: #e6b8b7;
+}
+
+.download-btn {
+  display: block;
+  margin: 30px auto 0;
+  padding: 12px 20px;
+  background: var(--serenity);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
+.results-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #5f78a8; /* darker shade of serenity */
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}

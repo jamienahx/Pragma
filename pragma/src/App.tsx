@@ -7,9 +7,10 @@ import Navbar from './components/navbar';
 
 function App() {
   return(
-    <>
+    <div className="app-wrapper">
 
      <Navbar />
+     <main className="app-content">
     <Routes>
      
 
@@ -17,7 +18,8 @@ function App() {
     <Route path="/results" element = {<Results/>} />
 
     </Routes>
-    </>
+    </main>
+    </div>
 
   )
 }

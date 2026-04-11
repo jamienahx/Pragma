@@ -1,6 +1,7 @@
 import { useLocation} from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import languages from '../data/languages.json'
+import './results.css';
 
 const Results = () => {
 const location = useLocation();
@@ -33,16 +34,17 @@ const speakText = (text: string) => {
 }
 
 return (
-<div style = {{padding: "20px"}}>
-<h2> Generated phrases </h2>
+<div className="results-container">
+    <h2 className = "results-title">Generated Phrases</h2>
 
 <div id = "pdf-content">
     {result.map ((item: any, index: number)=>(
-        <div key={index} style ={{marginBottom:"15px"}}>
-            <p><strong>{item.native}</strong></p>
-            <p>{item.romanized}</p>
-            <p>{item.english}</p>
+        <div key={index} className="result-card">
+            <p className="native"><strong>{item.native}</strong></p>
+            <p className="romanized">{item.romanized}</p>
+            <p className = "english">{item.english}</p>
             <button 
+            className="audio-btn"
 onClick={()=> 
     speakText(item.native)}>
 
@@ -52,7 +54,7 @@ onClick={()=>
     ))}
 </div>
 
-<button onClick = {handleDownload}>
+<button className = "download-btn" onClick = {handleDownload}>
 
 Download as PDF
 </button>
