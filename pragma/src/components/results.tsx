@@ -1,12 +1,12 @@
 import { useLocation } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import languages from "../data/languages.json";
 import "./results.css";
 
 interface Phrase {
   native: string;
   romanized: string;
   english: string;
-  audio?: string;
 }
 
 interface LocationState {
@@ -19,7 +19,15 @@ const Results = () => {
   const state = location.state as LocationState | null;
 
   const result = state?.result;
+  const language = state?.language;
 
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  const selectedLanguage = languages.find(
+    (lang) => lang.name === language || lang.code === language
+  );
+
+  const speechCode = selectedLanguage?.speechCode || "en-US";
 
   const handleDownload = () => {
     const element = document.getElementById("pdf-content");
@@ -32,16 +40,34 @@ const Results = () => {
     return <p>No results available</p>;
   }
 
-  const playAudio = (audioSrc?: string) => {
-    if (!audioSrc) {
-      console.error("No audio source available.");
+  const handlePlayAudio = async (text: string) => {
+    if (!isMobile) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = speechCode;
+      speechSynthesis.speak(utterance);
       return;
     }
 
-    const audio = new Audio(audioSrc);
-    audio.play().catch((err) =>
-      console.error("Audio playback failed:", err)
-    );
+    try {
+      const response = await fetch("/api/speak", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text, language }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate audio");
+      }
+
+      const data = await response.json();
+      const audio = new Audio(data.audio);
+      await audio.play();
+    } catch (error) {
+      console.error("Audio playback failed:", error);
+    }
   };
 
   return (
@@ -57,18 +83,12 @@ const Results = () => {
             <p className="romanized">{item.romanized}</p>
             <p className="english">{item.english}</p>
 
-            {item.audio ? (
-              <button
-                className="audio-btn"
-                onClick={() => playAudio(item.audio)}
-              >
-                Play Audio
-              </button>
-            ) : (
-              <button className="audio-btn" disabled>
-                Audio Unavailable
-              </button>
-            )}
+            <button
+              className="audio-btn"
+              onClick={() => handlePlayAudio(item.native)}
+            >
+              Play Audio
+            </button>
           </div>
         ))}
       </div>
