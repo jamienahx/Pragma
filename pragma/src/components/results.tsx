@@ -8,7 +8,7 @@ const location = useLocation();
 const result = location.state?.result;
 const language = location.state?.language;
 const selectedLanguage = languages.find(
-    (lang) => lang.code === language);
+    (lang) => lang.name === language);
 const speechCode = selectedLanguage?.speechCode || "en-US";
 
 
