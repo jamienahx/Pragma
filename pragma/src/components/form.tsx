@@ -31,22 +31,32 @@ const [formData, setFormData] = useState({
         const API_URL = import.meta.env.VITE_API_URL || "";
         
 
-        try {const response = await fetch(`${API_URL}/api/generate`, {
-            method:"POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
+      try {
+  const response = await fetch(`${API_URL}/api/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
 
-        const data = await response.json();
-        console.log(data);
-        navigate("/results", { state: {result: data.result, language:formData.language} });
-    } catch (error) {
-        console.log(error);
-    } finally {
-        setLoading(false);
-    }
+  
+if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Server error ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log(data);
+
+  navigate("/results", {
+    state: { result: data.result, language: formData.language },
+  });
+} catch (error) {
+  console.error(error);
+} finally {
+  setLoading(false);
+}
 }
 
 
