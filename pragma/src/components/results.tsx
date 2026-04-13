@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+import { useState, useRef } from "react";
 import html2pdf from "html2pdf.js";
 import languages from "../data/languages.json";
 import "./results.css";
@@ -21,6 +22,8 @@ const Results = () => {
   const result = state?.result;
   const language = state?.language;
 
+  const [playingText, setPlayingText] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const selectedLanguage = languages.find(
@@ -40,12 +43,30 @@ const Results = () => {
     return <p>No results available</p>;
   }
 
+  const stopCurrentPlayback = () => {
+    window.speechSynthesis.cancel();
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    setPlayingText(null);
+  };
+
   const handlePlayAudio = async (text: string) => {
+    stopCurrentPlayback();
+    setPlayingText(text);
+
     if (!isMobile) {
-      speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = speechCode;
-      speechSynthesis.speak(utterance);
+
+      utterance.onend = () => setPlayingText(null);
+      utterance.onerror = () => setPlayingText(null);
+
+      window.speechSynthesis.speak(utterance);
       return;
     }
 
@@ -64,9 +85,23 @@ const Results = () => {
 
       const data = await response.json();
       const audio = new Audio(data.audio);
+
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setPlayingText(null);
+        audioRef.current = null;
+      };
+
+      audio.onerror = () => {
+        setPlayingText(null);
+        audioRef.current = null;
+      };
+
       await audio.play();
     } catch (error) {
       console.error("Audio playback failed:", error);
+      setPlayingText(null);
     }
   };
 
@@ -87,7 +122,7 @@ const Results = () => {
               className="audio-btn"
               onClick={() => handlePlayAudio(item.native)}
             >
-              Play Audio
+              {playingText === item.native ? "Playing..." : "Play Audio"}
             </button>
           </div>
         ))}
