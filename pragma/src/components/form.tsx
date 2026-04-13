@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {useNavigate} from 'react-router-dom';
 import './form.css';
 import languages from '../data/languages.json';
@@ -28,7 +28,10 @@ const [formData, setFormData] = useState({
         //console.log(formData);
         setLoading(true);
 
-        try {const response = await fetch("http://localhost:3000/api/generate", {
+        const API_URL = import.meta.env.VITE_API_URL || "";
+        
+
+        try {const response = await fetch(`${API_URL}/api/generate`, {
             method:"POST",
             headers: {
                 "Content-Type": "application/json"
