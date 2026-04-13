@@ -25,6 +25,7 @@ const Results = () => {
   const [playingText, setPlayingText] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const audioCache = useRef<Record<string, string>>({});
 
   const selectedLanguage = languages.find(
     (lang) => lang.name === language || lang.code === language
@@ -56,21 +57,25 @@ const Results = () => {
   };
 
   const handlePlayAudio = async (text: string) => {
-    stopCurrentPlayback();
-    setPlayingText(text);
 
-    if (!isMobile) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = speechCode;
+  stopCurrentPlayback();
+  setPlayingText(text);
 
-      utterance.onend = () => setPlayingText(null);
-      utterance.onerror = () => setPlayingText(null);
+  // Desktop: Use browser speech synthesis
+  if (!isMobile) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = speechCode;
+    utterance.onend = () => setPlayingText(null);
+    utterance.onerror = () => setPlayingText(null);
+    window.speechSynthesis.speak(utterance);
+    return;
+  }
 
-      window.speechSynthesis.speak(utterance);
-      return;
-    }
+  try {
+    let audioSrc = audioCache.current[text];
 
-    try {
+    // Fetch audio only if not cached
+    if (!audioSrc) {
       const response = await fetch("/api/speak", {
         method: "POST",
         headers: {
@@ -84,26 +89,29 @@ const Results = () => {
       }
 
       const data = await response.json();
-      const audio = new Audio(data.audio);
-
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        setPlayingText(null);
-        audioRef.current = null;
-      };
-
-      audio.onerror = () => {
-        setPlayingText(null);
-        audioRef.current = null;
-      };
-
-      await audio.play();
-    } catch (error) {
-      console.error("Audio playback failed:", error);
-      setPlayingText(null);
+      audioSrc = data.audio;
+      audioCache.current[text] = audioSrc;
     }
-  };
+
+    const audio = new Audio(audioSrc);
+    audioRef.current = audio;
+
+    audio.onended = () => {
+      setPlayingText(null);
+      audioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      setPlayingText(null);
+      audioRef.current = null;
+    };
+
+    await audio.play();
+  } catch (error) {
+    console.error("Audio playback failed:", error);
+    setPlayingText(null);
+  }
+};
 
   return (
     <div className="results-container">
