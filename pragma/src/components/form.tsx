@@ -75,7 +75,7 @@ if (!response.ok) {
             <option value = "">Select a Language</option>
        
         {languages.map((lang)=> (
-            <option key ={lang.code} value ={lang.code}>
+            <option key ={lang.code} value ={lang.name}>
                 {lang.name}
             </option>
         ))}
