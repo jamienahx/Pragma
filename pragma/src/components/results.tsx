@@ -1,70 +1,83 @@
-import { useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import html2pdf from "html2pdf.js";
-import languages from '../data/languages.json'
-import './results.css';
+import "./results.css";
+
+interface Phrase {
+  native: string;
+  romanized: string;
+  english: string;
+  audio?: string;
+}
+
+interface LocationState {
+  result: Phrase[];
+  language: string;
+}
 
 const Results = () => {
-const location = useLocation();
-const result = location.state?.result;
-const language = location.state?.language;
-const selectedLanguage = languages.find(
-    (lang) => lang.name === language);
-const speechCode = selectedLanguage?.speechCode || "en-US";
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+
+  const result = state?.result;
 
 
-const handleDownload = () => {
-const element = document.getElementById("pdf-content");
-if (!element) return;
+  const handleDownload = () => {
+    const element = document.getElementById("pdf-content");
+    if (!element) return;
 
-html2pdf()
-.from(element)
-.save("generated-responses.pdf");
-};
+    html2pdf().from(element).save("generated-responses.pdf");
+  };
 
-if (!result) {
-    return <p>No results available</p>
+  if (!result) {
+    return <p>No results available</p>;
+  }
 
-}
+  const playAudio = (audioSrc?: string) => {
+    if (!audioSrc) {
+      console.error("No audio source available.");
+      return;
+    }
 
-const speakText = (text: string) => {
-    speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-     utterance.lang = speechCode;
-    speechSynthesis.speak(utterance);
-}
+    const audio = new Audio(audioSrc);
+    audio.play().catch((err) =>
+      console.error("Audio playback failed:", err)
+    );
+  };
 
-return (
-<div className="results-container">
-    <h2 className = "results-title">Generated Phrases</h2>
+  return (
+    <div className="results-container">
+      <h2 className="results-title">Generated Phrases</h2>
 
-<div id = "pdf-content">
-    {result.map ((item: any, index: number)=>(
-        <div key={index} className="result-card">
-            <p className="native"><strong>{item.native}</strong></p>
+      <div id="pdf-content">
+        {result.map((item, index) => (
+          <div key={index} className="result-card">
+            <p className="native">
+              <strong>{item.native}</strong>
+            </p>
             <p className="romanized">{item.romanized}</p>
-            <p className = "english">{item.english}</p>
-            <button 
-            className="audio-btn"
-onClick={()=> 
-    speakText(item.native)}>
+            <p className="english">{item.english}</p>
 
-    Play Audio
-</button>
-            </div>
-    ))}
-</div>
+            {item.audio ? (
+              <button
+                className="audio-btn"
+                onClick={() => playAudio(item.audio)}
+              >
+                Play Audio
+              </button>
+            ) : (
+              <button className="audio-btn" disabled>
+                Audio Unavailable
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
 
-<button className = "download-btn" onClick = {handleDownload}>
-
-Download as PDF
-</button>
-
-
-
-</div>
-
-);
+      <button className="download-btn" onClick={handleDownload}>
+        Download as PDF
+      </button>
+    </div>
+  );
 };
-
 
 export default Results;
