@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import languages from "../src/data/languages.json";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,8 +20,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const selectedLanguage =
-      languages.find((lang) => lang.code === language)?.name || language;
+    const selectedLanguage = language;
 
     const prompt = `The user is a ${identityInput}.
 They are speaking to a ${otherPartyInput}.
@@ -40,7 +38,6 @@ Return ONLY a JSON array in this exact format:
     "english": "english translation"
   }
 ]
-Keep the tone appropriate for the situation.
 Do not include any extra text, explanation, or formatting.`;
 
     const completion = await openai.chat.completions.create({
@@ -63,18 +60,12 @@ Do not include any extra text, explanation, or formatting.`;
       return res.status(500).json({ error: "Empty OpenAI response" });
     }
 
-    let parsed;
-    try {
-      const cleaned = raw.replace(/```json|```/g, "").trim();
-      parsed = JSON.parse(cleaned);
-    } catch (err) {
-      console.error("JSON parse failed:", raw);
-      return res.status(500).json({ error: "Invalid response format from OpenAI" });
-    }
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
 
     return res.status(200).json({ result: parsed });
   } catch (error) {
     console.error("generate.js fatal error:", error);
-    return res.status(500).json({ error: "Something went wrong!" });
+    return res.status(500).json({ error: String(error?.message || error) });
   }
 }
