@@ -23,8 +23,14 @@ const Results = () => {
   const language = state?.language;
 
   const [playingText, setPlayingText] = useState<string | null>(null);
+  const [loadingText, setLoadingText] = useState<string | null>(null);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Record<string, string>>({});
+const audioRequestCache = useRef<
+  Partial<Record<string, Promise<string>>>
+>({});
+  const playRequestIdRef = useRef<number>(0);
 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
@@ -56,60 +62,116 @@ const Results = () => {
     setPlayingText(null);
   };
 
-  const handlePlayAudio = async (text: string) => {
-    stopCurrentPlayback();
-    setPlayingText(text);
-
-    // Desktop: Use browser speech synthesis (instant and free)
-    if (!isMobile) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = speechCode;
-      utterance.onend = () => setPlayingText(null);
-      utterance.onerror = () => setPlayingText(null);
-      window.speechSynthesis.speak(utterance);
-      return;
+  const getOrFetchAudio = async (text: string): Promise<string> => {
+    // Return cached audio
+    if (audioCache.current[text]) {
+      return audioCache.current[text];
     }
 
-    try {
-      let audioSrc = audioCache.current[text];
+    // Prevent duplicate API calls
+    if (audioRequestCache.current[text]) {
+      return audioRequestCache.current[text];
+    }
 
-      // Fetch audio only if not cached
-      if (!audioSrc) {
-        const response = await fetch("/api/speak", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text, language }),
-        });
-
+    const requestPromise = fetch("/api/speak", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text, language }),
+    })
+      .then(async (response) => {
         if (!response.ok) {
           throw new Error("Failed to generate audio");
         }
 
         const data = await response.json();
-        audioSrc = data.audio;
+        const audioSrc = data.audio as string;
         audioCache.current[text] = audioSrc;
+        return audioSrc;
+      })
+      .finally(() => {
+        delete audioRequestCache.current[text];
+      });
+
+    audioRequestCache.current[text] = requestPromise;
+    return requestPromise;
+  };
+
+  const handlePlayAudio = async (text: string) => {
+    const requestId = ++playRequestIdRef.current;
+
+    stopCurrentPlayback();
+
+    // Desktop: use browser speech synthesis
+    if (!isMobile) {
+      setPlayingText(text);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = speechCode;
+
+      utterance.onend = () => {
+        if (playRequestIdRef.current === requestId) {
+          setPlayingText(null);
+        }
+      };
+
+      utterance.onerror = () => {
+        if (playRequestIdRef.current === requestId) {
+          setPlayingText(null);
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+
+    // Mobile: generate audio on demand
+    try {
+      setLoadingText(text);
+
+      const audioSrc = await getOrFetchAudio(text);
+
+      // Ignore outdated responses
+      if (playRequestIdRef.current !== requestId) {
+        return;
       }
+
+      setLoadingText(null);
+      setPlayingText(text);
 
       const audio = new Audio(audioSrc);
       audioRef.current = audio;
 
       audio.onended = () => {
-        setPlayingText(null);
+        if (playRequestIdRef.current === requestId) {
+          setPlayingText(null);
+        }
         audioRef.current = null;
       };
 
       audio.onerror = () => {
-        setPlayingText(null);
+        if (playRequestIdRef.current === requestId) {
+          setPlayingText(null);
+        }
         audioRef.current = null;
       };
 
       await audio.play();
     } catch (error) {
       console.error("Audio playback failed:", error);
-      setPlayingText(null);
+
+      if (playRequestIdRef.current === requestId) {
+        setLoadingText(null);
+        setPlayingText(null);
+      }
     }
+  };
+
+  const getButtonLabel = (text: string) => {
+    if (loadingText === text) return "Loading Audio...";
+    if (playingText === text) return "Playing...";
+    return "Play Audio";
   };
 
   return (
@@ -128,11 +190,8 @@ const Results = () => {
             <button
               className="audio-btn"
               onClick={() => handlePlayAudio(item.native)}
-              disabled={playingText === item.native}
             >
-              {playingText === item.native
-                ? "Playing..."
-                : "Play Audio"}
+              {getButtonLabel(item.native)}
             </button>
           </div>
         ))}
