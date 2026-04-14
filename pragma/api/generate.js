@@ -33,34 +33,36 @@ Return ONLY a JSON array in this exact format:
   }
 ]`;
 
-    // Generate phrases
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       messages: [
-        { role: "system", content: "You help users generate likely phrases used in provided scenarios." },
-        { role: "user", content: prompt },
+        {
+          role: "system",
+          content:
+            "You help users generate realistic phrases for given scenarios.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
       ],
     });
 
     const raw = completion.choices[0].message.content;
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-    const phrases = JSON.parse(cleaned);
 
-    // Generate audio for each phrase
-    for (const phrase of phrases) {
-      const audioResponse = await openai.audio.speech.create({
-        model: "gpt-4o-mini-tts",
-        voice: "alloy",
-        input: phrase.native,
-      });
-
-      const buffer = Buffer.from(await audioResponse.arrayBuffer());
-      phrase.audio = `data:audio/mp3;base64,${buffer.toString("base64")}`;
+    if (!raw) {
+      return res.status(500).json({ error: "Empty OpenAI response" });
     }
 
-    return res.status(200).json({ result: phrases });
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    return res.status(200).json({ result: parsed });
   } catch (error) {
-    console.error("TTS error:", error);
-    return res.status(500).json({ error: "Something went wrong!" });
+    console.error("Generate error:", error);
+    return res.status(500).json({
+      error: "Failed to generate phrases",
+      details: error.message,
+    });
   }
 }
