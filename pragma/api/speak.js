@@ -16,8 +16,8 @@ export default async function handler(req, res) {
 
     const { text } = req.body;
 
-    if (!text) {
-      return res.status(400).json({ error: "Text is required" });
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "Valid text is required" });
     }
 
     const audioResponse = await openai.audio.speech.create({
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     console.error("TTS error:", error);
     return res.status(500).json({
       error: "Failed to generate audio",
-      details: error.message,
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }

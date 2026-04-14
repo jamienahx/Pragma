@@ -10,7 +10,16 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const { identityInput, otherPartyInput, descriptionInput, language } = req.body;
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
+    }
+
+    const {
+      identityInput,
+      otherPartyInput,
+      descriptionInput,
+      language,
+    } = req.body;
 
     if (!identityInput || !otherPartyInput || !descriptionInput || !language) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -35,6 +44,7 @@ Return ONLY a JSON array in this exact format:
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
+      temperature: 0.7,
       messages: [
         {
           role: "system",
@@ -48,7 +58,7 @@ Return ONLY a JSON array in this exact format:
       ],
     });
 
-    const raw = completion.choices[0].message.content;
+    const raw = completion.choices?.[0]?.message?.content;
 
     if (!raw) {
       return res.status(500).json({ error: "Empty OpenAI response" });
@@ -62,7 +72,7 @@ Return ONLY a JSON array in this exact format:
     console.error("Generate error:", error);
     return res.status(500).json({
       error: "Failed to generate phrases",
-      details: error.message,
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }

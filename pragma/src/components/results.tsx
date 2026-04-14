@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import html2pdf from "html2pdf.js";
 import languages from "../data/languages.json";
 import "./results.css";
@@ -27,9 +27,9 @@ const Results = () => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Record<string, string>>({});
-const audioRequestCache = useRef<
-  Partial<Record<string, Promise<string>>>
->({});
+  const audioRequestCache = useRef<
+    Partial<Record<string, Promise<string>>>
+  >({});
   const playRequestIdRef = useRef<number>(0);
 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -63,14 +63,12 @@ const audioRequestCache = useRef<
   };
 
   const getOrFetchAudio = async (text: string): Promise<string> => {
-    // Return cached audio
     if (audioCache.current[text]) {
       return audioCache.current[text];
     }
 
-    // Prevent duplicate API calls
     if (audioRequestCache.current[text]) {
-      return audioRequestCache.current[text];
+      return audioRequestCache.current[text]!;
     }
 
     const requestPromise = fetch("/api/speak", {
@@ -97,6 +95,26 @@ const audioRequestCache = useRef<
     audioRequestCache.current[text] = requestPromise;
     return requestPromise;
   };
+
+  /**
+   * 🔹 Background Audio Preloading
+   * Runs after results are rendered.
+   */
+  useEffect(() => {
+    if (!result || !isMobile) return;
+
+    const preloadAudio = async () => {
+      for (const phrase of result) {
+        try {
+          await getOrFetchAudio(phrase.native);
+        } catch (error) {
+          console.error("Preload failed:", error);
+        }
+      }
+    };
+
+    preloadAudio();
+  }, [result, isMobile]);
 
   const handlePlayAudio = async (text: string) => {
     const requestId = ++playRequestIdRef.current;
@@ -126,13 +144,12 @@ const audioRequestCache = useRef<
       return;
     }
 
-    // Mobile: generate audio on demand
+    // Mobile: use preloaded or fetched audio
     try {
       setLoadingText(text);
 
       const audioSrc = await getOrFetchAudio(text);
 
-      // Ignore outdated responses
       if (playRequestIdRef.current !== requestId) {
         return;
       }
@@ -160,11 +177,8 @@ const audioRequestCache = useRef<
       await audio.play();
     } catch (error) {
       console.error("Audio playback failed:", error);
-
-      if (playRequestIdRef.current === requestId) {
-        setLoadingText(null);
-        setPlayingText(null);
-      }
+      setLoadingText(null);
+      setPlayingText(null);
     }
   };
 
