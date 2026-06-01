@@ -5,12 +5,6 @@ width:100%;
   padding: 30px;
 }
 
-.results-title {
-  text-align: center;
-  margin-bottom: 30px;
-  color: var(--serenity);
-}
-
 .result-card {
   background: var(--card);
   border-left: 6px solid var(--rose);
@@ -50,10 +44,15 @@ width:100%;
   background: #e6b8b7;
 }
 
+.results-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+    margin-bottom: 20px; 
+}
 .download-btn {
-  display: block;
-  margin: 30px auto 0;
-  padding: 12px 20px;
+  padding: 6px;
   background: var(--serenity);
   color: white;
   border: none;
@@ -64,10 +63,25 @@ width:100%;
 
 .results-title {
   text-align: center;
-  margin-bottom: 30px;
-  color: #5f78a8; /* darker shade of serenity */
+  margin-bottom: 0;           /* remove vertical gap (since it's in a row now) */
+  color: #5f78a8;
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.back-link {
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.back-link:hover {
+  background: rgba(0,0,0,0.05);
 }

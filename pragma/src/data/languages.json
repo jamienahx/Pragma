@@ -1,5 +1,10 @@
 [
-  { "code": "en", "name": "English", "speechCode": "en-US" },
+  { "code": "en", "name": "English", "speechCode": "en-US" }, 
+  { "code": "id", "name": "Indonesian", "speechCode": "id-ID" },
+  { "code": "id", "name": "Indonesian", "speechCode": "id_ID" },
+  { "code": "el", "name": "Greek", "speechCode": "el-GR" },
+  { "code": "sr", "name": "Serbian", "speechCode": "sr-RS" },
+  { "code": "tl", "name": "Tagalog", "speechCode": "tl-PH" },
   { "code": "es", "name": "Spanish", "speechCode": "es-ES" },
   { "code": "zh", "name": "Chinese (Mandarin)", "speechCode": "zh-CN" },
   { "code": "hi", "name": "Hindi", "speechCode": "hi-IN" },

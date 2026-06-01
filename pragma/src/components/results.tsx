@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import html2pdf from "html2pdf.js";
 import languages from "../data/languages.json";
@@ -21,6 +21,7 @@ const Results = () => {
 
   const result = state?.result;
   const language = state?.language;
+  const navigate = useNavigate();
 
   const [playingText, setPlayingText] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState<string | null>(null);
@@ -190,8 +191,16 @@ const Results = () => {
 
   return (
     <div className="results-container">
+      
+      
+        <div className="results-header">
+          <div className ="back-link" onClick={()=> navigate("/")}>  &lt;</div>
       <h2 className="results-title">Generated Phrases</h2>
-
+       <button className="download-btn" onClick={handleDownload}>
+        Download as PDF
+      </button>
+      </div>
+      <div className = "results-content">
       <div id="pdf-content">
         {result.map((item, index) => (
           <div key={index} className="result-card">
@@ -211,9 +220,8 @@ const Results = () => {
         ))}
       </div>
 
-      <button className="download-btn" onClick={handleDownload}>
-        Download as PDF
-      </button>
+     
+    </div>
     </div>
   );
 };
